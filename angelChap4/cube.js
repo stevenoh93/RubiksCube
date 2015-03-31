@@ -13,9 +13,20 @@ var zAxis = 2;
 
 var axis = 0;
 var theta = [ 0, 0, 0 ];
-var endTheta = [0, 0, 0,];
+var endTheta = [0, 0, 0];
 
 var thetaLoc;
+
+var vertices = [
+    vec3( -0.6,  0.2,  0.6 ),
+    vec3( -0.6,  0.6,  0.6 ),
+    vec3( -0.2,  0.6,  0.6 ),
+    vec3( -0.2,  0.2,  0.6 ),
+    vec3( -0.6,  0.2,  0.2 ),
+    vec3( -0.6,  0.6,  0.2 ),
+    vec3( -0.2,  0.6,  0.2 ),
+    vec3( -0.2,  0.2,  0.2 )
+]
 
 window.onload = function init()
 {
@@ -59,15 +70,18 @@ window.onload = function init()
     
     document.getElementById( "xButton" ).onclick = function () {
         axis = xAxis;
-        theta[axis] += 90;
+        endTheta[axis] += 90;
+        console.log(axis);
     };
     document.getElementById( "yButton" ).onclick = function () {
         axis = yAxis;
-        theta[axis] += 90;
+        endTheta[axis] += 90;
+        console.log(axis);
     };
     document.getElementById( "zButton" ).onclick = function () {
         axis = zAxis;
-        theta[axis] += 90;
+        endTheta[axis] += 90;
+        console.log(axis);
     };
         
     render();
@@ -85,15 +99,26 @@ function colorCube()
 
 function quad(a, b, c, d) 
 {
-    var vertices = [
-        vec3( -0.5, -0.5,  0.5 ),
-        vec3( -0.5,  0.5,  0.5 ),
-        vec3(  0.5,  0.5,  0.5 ),
-        vec3(  0.5, -0.5,  0.5 ),
-        vec3( -0.5, -0.5, -0.5 ),
-        vec3( -0.5,  0.5, -0.5 ),
-        vec3(  0.5,  0.5, -0.5 ),
-        vec3(  0.5, -0.5, -0.5 )
+    // var vertices = [
+    //     vec3( -0.5, -0.5,  0.5 ),
+    //     vec3( -0.5,  0.5,  0.5 ),
+    //     vec3(  0.5,  0.5,  0.5 ),
+    //     vec3(  0.5, -0.5,  0.5 ),
+    //     vec3( -0.5, -0.5, -0.5 ),
+    //     vec3( -0.5,  0.5, -0.5 ),
+    //     vec3(  0.5,  0.5, -0.5 ),
+    //     vec3(  0.5, -0.5, -0.5 )
+    // ];
+
+    // FIX THIS
+    var vertices1 = [
+        vertices[0],
+        vertices[1],
+        vertices[2],
+        vertices[0],
+        vertices[0],
+        vertices[0],
+        vertices[0],
     ];
 
     var vertexColors = [
@@ -103,7 +128,7 @@ function quad(a, b, c, d)
         [ 0.0, 1.0, 0.0, 1.0 ],  // green
         [ 0.0, 0.0, 1.0, 1.0 ],  // blue
         [ 1.0, 0.0, 1.0, 1.0 ],  // magenta
-        [ 1.0, 1.0, 1.0, 1.0 ],  // white
+        [ 0.0, 1.0, 1.0, 1.0 ],  // white
         [ 0.0, 1.0, 1.0, 1.0 ]   // cyan
     ];
 
@@ -116,7 +141,7 @@ function quad(a, b, c, d)
     var indices = [ a, b, c, a, c, d ];
 
     for ( var i = 0; i < indices.length; ++i ) {
-        points.push( vertices[indices[i]] );
+        points.push( vertices1[indices[i]] );
         colors.push( vertexColors[a] );
     
         // for solid colored faces use 
@@ -130,6 +155,11 @@ function render()
     gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
     // theta[axis] += 2.0;
+    for(var i=xAxis; i<=zAxis; i++) {
+        if(theta[i] < endTheta[i]) {
+            theta[i] += 2.0;
+        }
+    }
     gl.uniform3fv(thetaLoc, theta);
 
     gl.drawArrays( gl.TRIANGLES, 0, NumVertices );
