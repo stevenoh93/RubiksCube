@@ -13,6 +13,7 @@ var zAxis = 2;
 
 var axis = 0;
 var theta = [ 0, 0, 0 ];
+var endTheta = [0, 0, 0,];
 
 var thetaLoc;
 
@@ -58,12 +59,15 @@ window.onload = function init()
     
     document.getElementById( "xButton" ).onclick = function () {
         axis = xAxis;
+        theta[axis] += 90;
     };
     document.getElementById( "yButton" ).onclick = function () {
         axis = yAxis;
+        theta[axis] += 90;
     };
     document.getElementById( "zButton" ).onclick = function () {
         axis = zAxis;
+        theta[axis] += 90;
     };
         
     render();
@@ -113,7 +117,7 @@ function quad(a, b, c, d)
 
     for ( var i = 0; i < indices.length; ++i ) {
         points.push( vertices[indices[i]] );
-        colors.push( vertexColors[indices[i]] );
+        colors.push( vertexColors[a] );
     
         // for solid colored faces use 
         //colors.push(vertexColors[a]);
@@ -125,7 +129,7 @@ function render()
 {
     gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-    theta[axis] += 2.0;
+    // theta[axis] += 2.0;
     gl.uniform3fv(thetaLoc, theta);
 
     gl.drawArrays( gl.TRIANGLES, 0, NumVertices );
