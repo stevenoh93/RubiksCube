@@ -6,6 +6,7 @@ var NumVertices  = 36;
 
 var points = [];
 var colors = [];
+var boxes = [];
 
 var xAxis = 0;
 var yAxis = 1;
@@ -18,14 +19,38 @@ var endTheta = [0, 0, 0];
 var thetaLoc;
 
 var vertices = [
-    vec3( -0.6,  0.2,  0.6 ),
     vec3( -0.6,  0.6,  0.6 ),
     vec3( -0.2,  0.6,  0.6 ),
+    vec3(  0.2,  0.6,  0.6 ),
+    vec3(  0.6,  0.6,  0.6 ),
+    vec3( -0.6,  0.2,  0.6 ),
     vec3( -0.2,  0.2,  0.6 ),
-    vec3( -0.6,  0.2,  0.2 ),
+    vec3(  0.2,  0.2,  0.6 ),
+    vec3(  0.6,  0.2,  0.6 ),
+    vec3( -0.6, -0.2,  0.6 ),
+    vec3( -0.2, -0.2,  0.6 ),
+    vec3(  0.2, -0.2,  0.6 ),
+    vec3(  0.6, -0.2,  0.6 ),
+    vec3( -0.6, -0.6,  0.6 ),
+    vec3( -0.2, -0.6,  0.6 ),
+    vec3(  0.2, -0.6,  0.6 ),
+    vec3(  0.6, -0.6,  0.6 ),
     vec3( -0.6,  0.6,  0.2 ),
     vec3( -0.2,  0.6,  0.2 ),
-    vec3( -0.2,  0.2,  0.2 )
+    vec3(  0.2,  0.6,  0.2 ),
+    vec3(  0.6,  0.6,  0.2 ),
+    vec3( -0.6,  0.2,  0.2 ),
+    vec3( -0.2,  0.2,  0.2 ),
+    vec3(  0.2,  0.2,  0.2 ),
+    vec3(  0.6,  0.2,  0.2 ),
+    vec3( -0.6, -0.2,  0.2 ),
+    vec3( -0.2, -0.2,  0.2 ),
+    vec3(  0.2, -0.2,  0.2 ),
+    vec3(  0.6, -0.2,  0.2 ),
+    vec3( -0.6, -0.6,  0.2 ),
+    vec3( -0.2, -0.6,  0.2 ),
+    vec3(  0.2, -0.6,  0.2 ),
+    vec3(  0.6, -0.6,  0.2 )
 ]
 
 window.onload = function init()
@@ -111,15 +136,29 @@ function quad(a, b, c, d)
     // ];
 
     // FIX THIS
-    var vertices1 = [
+    var b1 = [
+        vertices[4],
         vertices[0],
         vertices[1],
-        vertices[2],
-        vertices[0],
-        vertices[0],
-        vertices[0],
-        vertices[0],
+        vertices[5],
+        vertices[20],
+        vertices[16],
+        vertices[17],
+        vertices[21]
     ];
+    // var b2 = [
+    //     vertices[1],
+    //     vertices[2],
+    //     vertices[18],
+    //     vertices[17],
+    //     vertices[5],
+    //     vertices[6],
+    //     vertices[22],
+    //     vertices[21]
+    // ];
+
+    boxes.push(b1);
+    // boxes.push(b2);
 
     var vertexColors = [
         [ 0.0, 0.0, 0.0, 1.0 ],  // black
@@ -139,15 +178,18 @@ function quad(a, b, c, d)
     //vertex color assigned by the index of the vertex
     
     var indices = [ a, b, c, a, c, d ];
-
-    for ( var i = 0; i < indices.length; ++i ) {
-        points.push( vertices1[indices[i]] );
-        colors.push( vertexColors[a] );
-    
-        // for solid colored faces use 
-        //colors.push(vertexColors[a]);
+    for (var b=0; b<boxes.length; b++) {
+        var curBox = boxes[b];
+        for ( var i = 0; i < indices.length; ++i ) {
+            points.push( curBox[indices[i]] );
+            colors.push( vertexColors[a] );
         
+            // for solid colored faces use 
+            //colors.push(vertexColors[a]);
+        
+        }
     }
+    
 }
 
 function render()
