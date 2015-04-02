@@ -18,19 +18,58 @@ var endTheta = [0, 0, 0];
 
 var thetaLoc;
 
-var vertices = [
-    vec3( -0.6,  0.6,  0.6 ), vec3( -0.2,  0.6,  0.6 ), vec3(  0.2,  0.6,  0.6 ), vec3(  0.6,  0.6,  0.6 ),
-    vec3( -0.6,  0.2,  0.6 ), vec3( -0.2,  0.2,  0.6 ), vec3(  0.2,  0.2,  0.6 ), vec3(  0.6,  0.2,  0.6 ),
-    vec3( -0.6, -0.2,  0.6 ), vec3( -0.2, -0.2,  0.6 ), vec3(  0.2, -0.2,  0.6 ), vec3(  0.6, -0.2,  0.6 ),
-    vec3( -0.6, -0.6,  0.6 ), vec3( -0.2, -0.6,  0.6 ), vec3(  0.2, -0.6,  0.6 ), vec3(  0.6, -0.6,  0.6 ),
-    vec3( -0.6,  0.6,  0.2 ), vec3( -0.2,  0.6,  0.2 ), vec3(  0.2,  0.6,  0.2 ), vec3(  0.6,  0.6,  0.2 ),
-    vec3( -0.6,  0.2,  0.2 ), vec3( -0.2,  0.2,  0.2 ), vec3(  0.2,  0.2,  0.2 ), vec3(  0.6,  0.2,  0.2 ),
-    vec3( -0.6, -0.2,  0.2 ), vec3( -0.2, -0.2,  0.2 ), vec3(  0.2, -0.2,  0.2 ), vec3(  0.6, -0.2,  0.2 ),
-    vec3( -0.6, -0.6,  0.2 ), vec3( -0.2, -0.6,  0.2 ), vec3(  0.2, -0.6,  0.2 ), vec3(  0.6, -0.6,  0.2 )
-]
+var boxes = [];
+var vertices = [];
+
+// var vertices = [
+//     vec3( -0.6,  0.6,  0.6 ), vec3( -0.2,  0.6,  0.6 ), vec3(  0.2,  0.6,  0.6 ), vec3(  0.6,  0.6,  0.6 ),
+//     vec3( -0.6,  0.2,  0.6 ), vec3( -0.2,  0.2,  0.6 ), vec3(  0.2,  0.2,  0.6 ), vec3(  0.6,  0.2,  0.6 ),
+//     vec3( -0.6, -0.2,  0.6 ), vec3( -0.2, -0.2,  0.6 ), vec3(  0.2, -0.2,  0.6 ), vec3(  0.6, -0.2,  0.6 ),
+//     vec3( -0.6, -0.6,  0.6 ), vec3( -0.2, -0.6,  0.6 ), vec3(  0.2, -0.6,  0.6 ), vec3(  0.6, -0.6,  0.6 ),
+//     vec3( -0.6,  0.6,  0.2 ), vec3( -0.2,  0.6,  0.2 ), vec3(  0.2,  0.6,  0.2 ), vec3(  0.6,  0.6,  0.2 ),
+//     vec3( -0.6,  0.2,  0.2 ), vec3( -0.2,  0.2,  0.2 ), vec3(  0.2,  0.2,  0.2 ), vec3(  0.6,  0.2,  0.2 ),
+//     vec3( -0.6, -0.2,  0.2 ), vec3( -0.2, -0.2,  0.2 ), vec3(  0.2, -0.2,  0.2 ), vec3(  0.6, -0.2,  0.2 ),
+//     vec3( -0.6, -0.6,  0.2 ), vec3( -0.2, -0.6,  0.2 ), vec3(  0.2, -0.6,  0.2 ), vec3(  0.6, -0.6,  0.2 )
+// ];
 
 window.onload = function init()
 {
+    // Add vertex coordinates to the vertices list
+    // Each side of smaller cubes are .4 units. The entire cube is within -0.6 to 0.6 on all axis
+    // Each vertex represents the (x,y,z) coordinate
+    // 0 - black
+    // 1 - red
+    // 2 - yello
+    // 3 - green
+    // 4 - blue
+    // 5 - magenta
+    // 6 - cyan
+
+    for (var z=0.6; z>=-0.6; z-=0.4) 
+        for (var y=0.6; y>=-0.6; y-=0.4) 
+            for (var x=-0.6; x<=0.6; x+=0.4) 
+                vertices.push(vec4(x, y, z));
+            
+    // Add boxes to the box list
+    // Each box is represented by list of 6 faces
+    // Each face is represented by 4 indexes to vertices list and color in integer (default 0)
+    var rownum = 0;
+    var si = 0;
+    for(var box=0; box<=27; box++) {
+        if (box<9) { // front slice
+            rownum = Math.floor(box/3);
+            si = rownum + box;
+            var faces = vertices2faces(si, si+1, si+4, si+5, si+16, si+17, si+20, si+21);
+        }
+        else if (box<18) { // middle slice
+
+        } else { // last slice
+
+        }
+
+    }
+    
+
     canvas = document.getElementById( "gl-canvas" );
     
     gl = WebGLUtils.setupWebGL( canvas );
@@ -87,6 +126,17 @@ window.onload = function init()
     };
         
     render();
+}
+
+function vertices2faces(a, b, c, d, e, f, g, h) {
+    var faces = [];
+    faces.push([a, c, d, b, 0]);
+    faces.push([b, d, h, f, 0]);
+    faces.push([c, g, h, d, 0]);
+    faces.push([f, e, a, b, 0]);
+    faces.push([e, f, h, g, 0]);
+    faces.push([a, e, g, c, 0]);
+    return faces;
 }
 
 function colorCubes() {
@@ -148,7 +198,6 @@ function quad(a, b, c, d)
         [ 0.0, 1.0, 0.0, 1.0 ],  // green
         [ 0.0, 0.0, 1.0, 1.0 ],  // blue
         [ 1.0, 0.0, 1.0, 1.0 ],  // magenta
-        [ 0.0, 1.0, 1.0, 1.0 ],  // white
         [ 0.0, 1.0, 1.0, 1.0 ]   // cyan
     ];
 
@@ -167,7 +216,6 @@ function quad(a, b, c, d)
         
             // for solid colored faces use 
             //colors.push(vertexColors[a]);
-        
         }
     }
     
