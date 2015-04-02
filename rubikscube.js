@@ -55,18 +55,16 @@ window.onload = function init()
     // Each face is represented by 4 indexes to vertices list and color in integer (default 0)
     var rownum = 0;
     var si = 0;
-    for(var box=0; box<=27; box++) {
-        if (box<9) { // front slice
+    for(var box=0; box<27; box++) {
+        if (box<9)  // front slice
             rownum = Math.floor(box/3);
-            si = rownum + box;
-            var faces = vertices2faces(si, si+1, si+4, si+5, si+16, si+17, si+20, si+21);
-        }
-        else if (box<18) { // middle slice
-
-        } else { // last slice
-
-        }
-
+        else if (box<18) // middle slice
+            rownum = Math.floor(box/3) + 4; // Constant to match row number with vertex number
+        else  // last slice
+            rownum = Math.floor(box/3) + 8; // Constant to match row number with vertex number
+    
+        si = rownum + box;
+        var faces = vertices2faces(si, si+1, si+4, si+5, si+16, si+17, si+20, si+21);   
     }
     
 
