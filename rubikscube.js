@@ -2,7 +2,7 @@
 var canvas;
 var gl;
 
-var NumVertices  = 64;
+var NumVertices  = 324;
 
 var points = [];
 var colors = [];
@@ -21,39 +21,27 @@ var thetaLoc;
 var boxes = [];
 var vertices = [];
 
-// var vertices = [
-//     vec3( -0.6,  0.6,  0.6 ), vec3( -0.2,  0.6,  0.6 ), vec3(  0.2,  0.6,  0.6 ), vec3(  0.6,  0.6,  0.6 ),
-//     vec3( -0.6,  0.2,  0.6 ), vec3( -0.2,  0.2,  0.6 ), vec3(  0.2,  0.2,  0.6 ), vec3(  0.6,  0.2,  0.6 ),
-//     vec3( -0.6, -0.2,  0.6 ), vec3( -0.2, -0.2,  0.6 ), vec3(  0.2, -0.2,  0.6 ), vec3(  0.6, -0.2,  0.6 ),
-//     vec3( -0.6, -0.6,  0.6 ), vec3( -0.2, -0.6,  0.6 ), vec3(  0.2, -0.6,  0.6 ), vec3(  0.6, -0.6,  0.6 ),
-//     vec3( -0.6,  0.6,  0.2 ), vec3( -0.2,  0.6,  0.2 ), vec3(  0.2,  0.6,  0.2 ), vec3(  0.6,  0.6,  0.2 ),
-//     vec3( -0.6,  0.2,  0.2 ), vec3( -0.2,  0.2,  0.2 ), vec3(  0.2,  0.2,  0.2 ), vec3(  0.6,  0.2,  0.2 ),
-//     vec3( -0.6, -0.2,  0.2 ), vec3( -0.2, -0.2,  0.2 ), vec3(  0.2, -0.2,  0.2 ), vec3(  0.6, -0.2,  0.2 ),
-//     vec3( -0.6, -0.6,  0.2 ), vec3( -0.2, -0.6,  0.2 ), vec3(  0.2, -0.6,  0.2 ), vec3(  0.6, -0.6,  0.2 )
-// ];
 
 window.onload = function init()
 {
     // Add vertex coordinates to the vertices list
     // Each side of smaller cubes are .4 units. The entire cube is within -0.6 to 0.6 on all axis
     // Each vertex represents the (x,y,z) coordinate
-    // 0 - black
-    // 1 - red
-    // 2 - yello
-    // 3 - green
-    // 4 - blue
-    // 5 - magenta
-    // 6 - cyan
+    // 0 - red
+    // 1 - yello
+    // 2 - green
+    // 3 - blue
+    // 4 - magenta
+    // 5 - cyan
+    // 6 - black
 
     for (var z=6; z>=-6; z-=4) {
         for (var y=6; y>=-6; y-=4) {
             for (var x=-6; x<=6; x+=4) {
-                vertices.push(vec4(x/10, y/10, z/10));
+                vertices.push(vec3(x/10, y/10, z/10));
             }
         }
     }
-
-    console.log(vertices);
             
     // Add boxes to the box list
     // Each box is represented by list of 6 faces
@@ -72,6 +60,8 @@ window.onload = function init()
         var faces = vertices2faces(si, si+1, si+4, si+5, si+16, si+17, si+20, si+21);   
         boxes.push(faces);
     }
+
+    console.log(faces[4]);
 
     // Set up canvas
 
@@ -157,6 +147,21 @@ function colorCubes() {
         // side E
         setColor(boxes[box+18], 4);
     }
+    for (var box=0; box<25; box+=3) {
+        // side F
+        setColor(boxes[box], 5);
+        // side B
+        setColor(boxes[box+2], 1);
+    }
+    for (var b1=0; b1<3; b1++) {
+        for(var b2=0; b2<3; b2++) {
+            var box = b1*9 + b2;
+            // side D
+            setColor(boxes[box], 3);
+            // side C
+            setColor(boxes[box+6], 2);
+        }
+    }
 }
 
 /*
@@ -200,11 +205,12 @@ function quad(face)
     for ( var i = 0; i < indices.length; ++i ) {
         points.push( vertices[indices[i]] );
         colors.push( vertexColors[face[4]] );
+        // console.log(vertices[indices[i]]);
     }
     // console.log(points);
     // console.log(colors);
-    // console.log(points.length);
-    // console.log(colors.length);
+    console.log(points.length);
+    console.log(colors.length);
 }
 function render()
 {
