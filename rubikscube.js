@@ -7,6 +7,7 @@ var NumVertices  = 324;
 var points = [];
 var colors = [];
 var boxes = [];
+var vertices = [];
 
 var xAxis = 0;
 var yAxis = 1;
@@ -18,8 +19,22 @@ var endTheta = [0, 0, 0];
 
 var thetaLoc;
 
-var boxes = [];
-var vertices = [];
+var  fovy = 45.0;  // Field-of-view in Y direction angle (in degrees)
+var  aspect;       // Viewport aspect ratio
+
+var near = 0.3;
+var far = 3.0;
+var radius = 3.0;
+var laTheta  = Math.PI/4;
+var laPhi    = Math.PI/4;
+var dr = 5.0 * Math.PI/180.0;
+
+var mvMatrix, pMatrix;
+var modelView, projection;
+var eye;
+
+const at = vec3(0.0, 0.0, 0.0);
+const up = vec3(0.0, 1.0, 0.0);
 
 
 window.onload = function init()
@@ -61,8 +76,6 @@ window.onload = function init()
         boxes.push(faces);
     }
 
-    console.log(faces[4]);
-
     // Set up canvas
 
     canvas = document.getElementById( "gl-canvas" );
@@ -70,9 +83,8 @@ window.onload = function init()
     gl = WebGLUtils.setupWebGL( canvas );
     if ( !gl ) { alert( "WebGL isn't available" ); }
 
-    colorCubes();
-
     gl.viewport( 0, 0, canvas.width, canvas.height );
+    aspect = canvas.width/canvas.height;
     gl.clearColor( 1.0, 1.0, 1.0, 1.0 );
     
     gl.enable(gl.DEPTH_TEST);
@@ -83,6 +95,8 @@ window.onload = function init()
     var program = initShaders( gl, "vertex-shader", "fragment-shader" );
     gl.useProgram( program );
     
+    colorCubes();
+
     var cBuffer = gl.createBuffer();
     gl.bindBuffer( gl.ARRAY_BUFFER, cBuffer );
     gl.bufferData( gl.ARRAY_BUFFER, flatten(colors), gl.STATIC_DRAW );
@@ -100,6 +114,9 @@ window.onload = function init()
     gl.enableVertexAttribArray( vPosition );
 
     thetaLoc = gl.getUniformLocation(program, "theta"); 
+
+    modelView = gl.getUniformLocation( program, "modelView" );
+    projection = gl.getUniformLocation( program, "projection" );
     
     //event listeners for buttons
     
@@ -205,12 +222,11 @@ function quad(face)
     for ( var i = 0; i < indices.length; ++i ) {
         points.push( vertices[indices[i]] );
         colors.push( vertexColors[face[4]] );
-        // console.log(vertices[indices[i]]);
     }
     // console.log(points);
     // console.log(colors);
-    console.log(points.length);
-    console.log(colors.length);
+    // console.log(points.length);
+    // console.log(colors.length);
 }
 function render()
 {
@@ -222,7 +238,15 @@ function render()
             theta[i] += 2.0;
         }
     }
+
+    eye = vec3(radius*Math.sin(laTheta)*Math.cos(laPhi), 
+        radius*Math.sin(laTheta)*Math.sin(laPhi), radius*Math.cos(laTheta));
+    mvMatrix = lookAt(eye, at , up);
+    pMatrix = perspective(fovy, aspect, near, far);
+
     gl.uniform3fv(thetaLoc, theta);
+    gl.uniformMatrix4fv( modelView, false, flatten(mvMatrix) );
+    gl.uniformMatrix4fv( projection, false, flatten(pMatrix) );
 
     gl.drawArrays( gl.TRIANGLES, 0, NumVertices );
 

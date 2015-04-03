@@ -7,6 +7,8 @@ attribute  vec4 vColor;
 varying vec4 fColor;
 
 uniform vec3 theta;
+uniform mat4 modelView;
+uniform mat4 projection;
 
 void main() 
 {
@@ -34,7 +36,7 @@ void main()
 		    0.0,  0.0, 0.0, 1.0 );
 
     fColor = vColor;
-    gl_Position = rz * ry * rx * vPosition;
+    gl_Position = projection * modelView * rz * ry * rx * vPosition;
 } 
 </script>
 
