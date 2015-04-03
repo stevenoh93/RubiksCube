@@ -2,7 +2,7 @@
 var canvas;
 var gl;
 
-var NumVertices  = 36;
+var NumVertices  = 64;
 
 var points = [];
 var colors = [];
@@ -45,10 +45,15 @@ window.onload = function init()
     // 5 - magenta
     // 6 - cyan
 
-    for (var z=0.6; z>=-0.6; z-=0.4) 
-        for (var y=0.6; y>=-0.6; y-=0.4) 
-            for (var x=-0.6; x<=0.6; x+=0.4) 
-                vertices.push(vec4(x, y, z));
+    for (var z=6; z>=-6; z-=4) {
+        for (var y=6; y>=-6; y-=4) {
+            for (var x=-6; x<=6; x+=4) {
+                vertices.push(vec4(x/10, y/10, z/10));
+            }
+        }
+    }
+
+    console.log(vertices);
             
     // Add boxes to the box list
     // Each box is represented by list of 6 faces
@@ -65,16 +70,17 @@ window.onload = function init()
     
         si = rownum + box;
         var faces = vertices2faces(si, si+1, si+4, si+5, si+16, si+17, si+20, si+21);   
+        boxes.push(faces);
     }
-    
+
+    // Set up canvas
 
     canvas = document.getElementById( "gl-canvas" );
     
     gl = WebGLUtils.setupWebGL( canvas );
     if ( !gl ) { alert( "WebGL isn't available" ); }
 
-    // colorCubes();
-    colorCube();
+    colorCubes();
 
     gl.viewport( 0, 0, canvas.width, canvas.height );
     gl.clearColor( 1.0, 1.0, 1.0, 1.0 );
@@ -126,19 +132,40 @@ window.onload = function init()
     render();
 }
 
+/*
+    Takes 8 vertices of a cube (order is important. more on readme)
+    and returns a list of six faces with default color 6 (black)
+*/
 function vertices2faces(a, b, c, d, e, f, g, h) {
     var faces = [];
-    faces.push([a, c, d, b, 0]);
-    faces.push([b, d, h, f, 0]);
-    faces.push([c, g, h, d, 0]);
-    faces.push([f, e, a, b, 0]);
-    faces.push([e, f, h, g, 0]);
-    faces.push([a, e, g, c, 0]);
+    faces.push([a, c, d, b, 6]);
+    faces.push([b, d, h, f, 6]);
+    faces.push([c, g, h, d, 6]);
+    faces.push([f, e, a, b, 6]);
+    faces.push([e, f, h, g, 6]);
+    faces.push([a, e, g, c, 6]);
     return faces;
 }
 
 function colorCubes() {
+    // sides A, E
+    var faces = [];
+    var curFace = [];
+    for (var box=0; box<9; box++) {
+        // side A
+        setColor(boxes[box], 0);
+        // side E
+        setColor(boxes[box+18], 4);
+    }
+}
 
+/*
+    Sets color to each face. The face index is equal to the color index for convenience
+*/
+function setColor(faces, color) {
+    var curFace = faces[color];
+    curFace[4] = color;
+    quad(curFace);
 }
 
 function colorCube(boxNum)
@@ -151,52 +178,16 @@ function colorCube(boxNum)
     quad( 5, 4, 0, 1 );
 }
 
-function quad(a, b, c, d) 
+function quad(face) 
 {
-    // var vertices = [
-    //     vec3( -0.5, -0.5,  0.5 ),
-    //     vec3( -0.5,  0.5,  0.5 ),
-    //     vec3(  0.5,  0.5,  0.5 ),
-    //     vec3(  0.5, -0.5,  0.5 ),
-    //     vec3( -0.5, -0.5, -0.5 ),
-    //     vec3( -0.5,  0.5, -0.5 ),
-    //     vec3(  0.5,  0.5, -0.5 ),
-    //     vec3(  0.5, -0.5, -0.5 )
-    // ];
-
-    // FIX THIS
-    var b1 = [
-        vertices[4],
-        vertices[0],
-        vertices[1],
-        vertices[5],
-        vertices[20],
-        vertices[16],
-        vertices[17],
-        vertices[21]
-    ];
-    // var b2 = [
-    //     vertices[1],
-    //     vertices[2],
-    //     vertices[18],
-    //     vertices[17],
-    //     vertices[5],
-    //     vertices[6],
-    //     vertices[22],
-    //     vertices[21]
-    // ];
-
-    boxes.push(b1);
-    // boxes.push(b2);
-
     var vertexColors = [
-        [ 0.0, 0.0, 0.0, 1.0 ],  // black
         [ 1.0, 0.0, 0.0, 1.0 ],  // red
         [ 1.0, 1.0, 0.0, 1.0 ],  // yellow
         [ 0.0, 1.0, 0.0, 1.0 ],  // green
         [ 0.0, 0.0, 1.0, 1.0 ],  // blue
         [ 1.0, 0.0, 1.0, 1.0 ],  // magenta
-        [ 0.0, 1.0, 1.0, 1.0 ]   // cyan
+        [ 0.0, 1.0, 1.0, 1.0 ],  // cyan
+        [ 0.0, 0.0, 0.0, 1.0 ]  // black
     ];
 
     // We need to parition the quad into two triangles in order for
@@ -205,20 +196,16 @@ function quad(a, b, c, d)
     
     //vertex color assigned by the index of the vertex
     
-    var indices = [ a, b, c, a, c, d ];
-    for (var b=0; b<boxes.length; b++) {
-        var curBox = boxes[b];
-        for ( var i = 0; i < indices.length; ++i ) {
-            points.push( curBox[indices[i]] );
-            colors.push( vertexColors[a] );
-        
-            // for solid colored faces use 
-            //colors.push(vertexColors[a]);
-        }
+    var indices = [ face[0], face[1], face[2], face[0], face[2], face[3] ];
+    for ( var i = 0; i < indices.length; ++i ) {
+        points.push( vertices[indices[i]] );
+        colors.push( vertexColors[face[4]] );
     }
-    
+    // console.log(points);
+    // console.log(colors);
+    // console.log(points.length);
+    // console.log(colors.length);
 }
-
 function render()
 {
     gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
