@@ -113,8 +113,15 @@ window.onload = function init()
     gl.vertexAttribPointer( vPosition, 3, gl.FLOAT, false, 0, 0 );
     gl.enableVertexAttribArray( vPosition );
 
-    thetaLoc = gl.getUniformLocation(program, "theta"); 
+    // var vBuffer2 = gl.createBuffer();
+    // gl.bindBuffer( gl.ARRAY_BUFFER, vBuffer2 );
+    // gl.bufferData( gl.ARRAY_BUFFER, flatten(points2), gl.STATIC_DRAW );
 
+    // var vPosition2 = gl.getAttribLocation( program, "vPosition2" );
+    // gl.vertexAttribPointer( vPosition2, 3, gl.FLOAT, false, 0, 0 );
+    // gl.enableVertexAttribArray( vPosition2 );
+
+    thetaLoc = gl.getUniformLocation(program, "theta"); 
     modelView = gl.getUniformLocation( program, "modelView" );
     projection = gl.getUniformLocation( program, "projection" );
     
