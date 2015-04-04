@@ -40,6 +40,7 @@ var laTheta  = Math.PI/4;
 var laPhi    = Math.PI/4;
 var dr = 5.0 * Math.PI/180.0;
 
+var mvMatrices = [];
 var mvMatrix, pMatrix;
 var modelView, projection;
 var eye;
@@ -72,6 +73,7 @@ window.onload = function init()
     // Add boxes to the box list
     // Each box is represented by list of 6 faces
     // Each face is represented by 4 indexes to vertices list and color in integer (default 0)
+    // Also, keep track of box movement by keeping list of mvMatrices for each box
     var rownum = 0;
     var si = 0;
     for(var box=0; box<27; box++) {
@@ -85,7 +87,14 @@ window.onload = function init()
         si = rownum + box;
         var faces = vertices2faces(si, si+1, si+4, si+5, si+16, si+17, si+20, si+21);   
         boxes.push(faces);
+        mvMatrices.push([mat4()]);
     }
+
+    // Set initial projection matrix
+    pMatrix = perspective(fovy, aspect, near, far);
+
+    // Determine which faces are which colors
+    colorCubes();
 
     canvas = document.getElementById( "gl-canvas" );
     
@@ -104,23 +113,34 @@ window.onload = function init()
     var program = initShaders( gl, "vertex-shader", "fragment-shader" );
     gl.useProgram( program );
 
-    colorCubes();
+    var vPosition = gl.getAttribLocation( program, "vPosition" );
+    gl.enableVertexAttribArray( vPosition );
+
+    var vColor = gl.getAttribLocation( program, "vColor" );
+    gl.enableVertexAttribArray( vColor ); 
+
+    thetaLoc = gl.getUniformLocation(program, "theta"); 
+    modelView = gl.getUniformLocation( program, "modelView" );
+    projection = gl.getUniformLocation( program, "projection" );
+
+
+
+    // EDIT BELOW
     
     var cBuffer = gl.createBuffer();
     gl.bindBuffer( gl.ARRAY_BUFFER, cBuffer );
     gl.bufferData( gl.ARRAY_BUFFER, flatten(colors), gl.STATIC_DRAW );
 
-    var vColor = gl.getAttribLocation( program, "vColor" );
+    
     gl.vertexAttribPointer( vColor, 4, gl.FLOAT, false, 0, 0 );
-    gl.enableVertexAttribArray( vColor ); 
+    
 
     var vBuffer = gl.createBuffer();
     gl.bindBuffer( gl.ARRAY_BUFFER, vBuffer );
     gl.bufferData( gl.ARRAY_BUFFER, flatten(points), gl.STATIC_DRAW );
     
-    var vPosition = gl.getAttribLocation( program, "vPosition" );
     gl.vertexAttribPointer( vPosition, 3, gl.FLOAT, false, 0, 0 );
-    gl.enableVertexAttribArray( vPosition );
+    
 
 
     // var vBuffer2 = gl.createBuffer();
@@ -131,9 +151,7 @@ window.onload = function init()
     // gl.vertexAttribPointer( vPosition2, 3, gl.FLOAT, false, 0, 0 );
     // gl.enableVertexAttribArray( vPosition2 );
 
-    thetaLoc = gl.getUniformLocation(program, "theta"); 
-    modelView = gl.getUniformLocation( program, "modelView" );
-    projection = gl.getUniformLocation( program, "projection" );
+    
     
     //event listeners for buttons
     
@@ -156,6 +174,14 @@ window.onload = function init()
     render();
 }
 
+function drawScene() {
+    for (var box=0; box<27; box++) {
+        points = [];
+        colors = [];
+        mvMatrix = mvMatrices[box];
+
+    }
+}
 
 
 /*
@@ -200,41 +226,17 @@ function colorCubes() {
     }
 }
 
-function colorCubes2() {
-    for (var b1=0; b1<3; b1++) {
-        for(var b2=0; b2<3; b2++) {
-            var box = b1*9 + b2;
-            // side D
-            setColor(boxes[box], 3);
-            // side C
-            setColor(boxes[box+6], 2);
-        }
-    }
-}
-
 /*
     Sets color to each face. The face index is equal to the color index for convenience
 */
 function setColor(faces, color) {
     var curFace = faces[color];
     curFace[4] = color;
-    quad(curFace);
-}
-
-function colorCube(boxNum)
-{
-    quad( 1, 0, 3, 2 );
-    quad( 2, 3, 7, 6 );
-    quad( 3, 0, 4, 7 );
-    quad( 6, 5, 1, 2 );
-    quad( 4, 5, 6, 7 );
-    quad( 5, 4, 0, 1 );
+    // quad(curFace);
 }
 
 function quad(face) 
 {
-
-
     // We need to parition the quad into two triangles in order for
     // WebGL to be able to render it.  In this case, we create two
     // triangles from the quad indices
@@ -243,11 +245,7 @@ function quad(face)
     
     var indices = [ face[0], face[1], face[2], face[0], face[2], face[3] ];
     for ( var i = 0; i < indices.length; ++i ) {
-        var vs = mult( vertices[indices[i]], rotate(90, [1, 0, 0]) );
-        console.log(vertices[indices[i]]);
-        console.log(rotate(90, [1, 0, 0]));
-        // console.log(vs);
-        points.push( vec3(vs[0], vs[1], vs[2]) );
+        points.push( vertices[indices[i]] );
         colors.push( vertexColors[face[4]] );
         return;
     }
