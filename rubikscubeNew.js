@@ -2,13 +2,16 @@
 var canvas;
 var gl;
 
-var NumVertices  = 324;
-// var NumVertices  = 216;
+var NumVertices  = 0;
+
 
 var points = [];
 var colors = [];
 var boxes = [];
 var vertices = [];
+
+var vBuffers = [];
+var cBuffers = [];
 
 var vertexColors = [
     [ 1.0, 0.0, 0.0, 1.0 ],  // red
@@ -33,7 +36,7 @@ var thetaLoc;
 var  fovy = 45.0;  // Field-of-view in Y direction angle (in degrees)
 var  aspect;       // Viewport aspect ratio
 
-var near = 0.3;
+var near = 0.1;
 var far = 5.0;
 var radius = 3.0;
 var laTheta  = Math.PI/4;
@@ -45,12 +48,69 @@ var mvMatrix, pMatrix;
 var modelView, projection;
 var eye;
 
+var vColor;
+var vPosition;
+
 const at = vec3(0.0, 0.0, 0.0);
 const up = vec3(0.0, 1.0, 0.0);
 
 
 window.onload = function init()
 {
+    canvas = document.getElementById( "gl-canvas" );
+    
+    gl = WebGLUtils.setupWebGL( canvas );
+    if ( !gl ) { alert( "WebGL isn't available" ); }
+
+    gl.viewport( 0, 0, canvas.width, canvas.height );
+    aspect = canvas.width/canvas.height;
+    gl.clearColor( 1.0, 1.0, 1.0, 1.0 );
+    
+    gl.enable(gl.DEPTH_TEST);
+
+    //
+    //  Load shaders and initialize attribute buffers
+    //
+    var program = initShaders( gl, "vertex-shader", "fragment-shader" );
+    gl.useProgram( program );
+
+    vPosition = gl.getAttribLocation( program, "vPosition" );
+    gl.enableVertexAttribArray( vPosition );
+
+    vColor = gl.getAttribLocation( program, "vColor" );
+    gl.enableVertexAttribArray( vColor ); 
+
+    modelView = gl.getUniformLocation( program, "modelView" );
+    projection = gl.getUniformLocation( program, "projection" );
+
+    initBuffers();
+
+    document.getElementById( "xButton" ).onclick = function () {
+        axis = xAxis;
+        endTheta[axis] += 90;
+        console.log(axis);
+    };
+    document.getElementById( "yButton" ).onclick = function () {
+        axis = yAxis;
+        endTheta[axis] += 90;
+        console.log(axis);
+    };
+    document.getElementById( "zButton" ).onclick = function () {
+        axis = zAxis;
+        endTheta[axis] += 90;
+        console.log(axis);
+    };
+
+    tick();
+}
+
+function tick() {
+    requestAnimFrame(tick);
+    drawScene();
+    // animate();
+}
+
+function initBuffers() {
     // Add vertex coordinates to the vertices list
     // Each side of smaller cubes are .4 units. The entire cube is within -0.6 to 0.6 on all axis
     // Each vertex represents the (x,y,z) coordinate
@@ -87,100 +147,84 @@ window.onload = function init()
         si = rownum + box;
         var faces = vertices2faces(si, si+1, si+4, si+5, si+16, si+17, si+20, si+21);   
         boxes.push(faces);
-        mvMatrices.push([mat4()]);
+        mvMatrices.push(mat4(vec4(1,0,0,0),vec4(0,1,0,0),vec4(0,0,1,0),vec4(0,0,0,1)));
     }
-
-    // Set initial projection matrix
-    pMatrix = perspective(fovy, aspect, near, far);
 
     // Determine which faces are which colors
     colorCubes();
 
-    canvas = document.getElementById( "gl-canvas" );
-    
-    gl = WebGLUtils.setupWebGL( canvas );
-    if ( !gl ) { alert( "WebGL isn't available" ); }
+    // Initialize buffers 
+    for (var box=0; box<27; box++) {
+        NumVertices = 0;
+        points = [];
+        colors = [];
+        curBox = boxes[box];
 
-    gl.viewport( 0, 0, canvas.width, canvas.height );
-    aspect = canvas.width/canvas.height;
-    gl.clearColor( 1.0, 1.0, 1.0, 1.0 );
-    
-    gl.enable(gl.DEPTH_TEST);
+        // put points and colors in list to be buffered
+        for (var face=0; face<6; face++) {
+            var curFace = faces[face];
+            quad(curFace);
+        }
 
-    //
-    //  Load shaders and initialize attribute buffers
-    //
-    var program = initShaders( gl, "vertex-shader", "fragment-shader" );
-    gl.useProgram( program );
+        // create buffer for each box
+        var newColorBuff = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, newColorBuff);
+        gl.bufferData(gl.ARRAY_BUFFER, flatten(colors), gl.STATIC_DRAW);
+        cBuffers.push(newColorBuff);
 
-    var vPosition = gl.getAttribLocation( program, "vPosition" );
-    gl.enableVertexAttribArray( vPosition );
+        var newVerBuff = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, newVerBuff);
+        gl.bufferData(gl.ARRAY_BUFFER, flatten(points), gl.STATIC_DRAW);
+        vBuffers.push(newVerBuff);
+    }
 
-    var vColor = gl.getAttribLocation( program, "vColor" );
-    gl.enableVertexAttribArray( vColor ); 
+    mvMatrix = mvMatrices[4];
+    console.log(mvMatrix);
+    console.log(mvMatrix.length);
+    var tr = translate(-0.2,0.2,0);
+    console.log(tr.length);
+    console.log(mvMatrix.matrix);
+    console.log(tr.matrix);
+    console.log(mult(mvMatrix, tr));
 
-    thetaLoc = gl.getUniformLocation(program, "theta"); 
-    modelView = gl.getUniformLocation( program, "modelView" );
-    projection = gl.getUniformLocation( program, "projection" );
-
-
-
-    // EDIT BELOW
-    
-    var cBuffer = gl.createBuffer();
-    gl.bindBuffer( gl.ARRAY_BUFFER, cBuffer );
-    gl.bufferData( gl.ARRAY_BUFFER, flatten(colors), gl.STATIC_DRAW );
-
-    
-    gl.vertexAttribPointer( vColor, 4, gl.FLOAT, false, 0, 0 );
-    
-
-    var vBuffer = gl.createBuffer();
-    gl.bindBuffer( gl.ARRAY_BUFFER, vBuffer );
-    gl.bufferData( gl.ARRAY_BUFFER, flatten(points), gl.STATIC_DRAW );
-    
-    gl.vertexAttribPointer( vPosition, 3, gl.FLOAT, false, 0, 0 );
-    
-
-
-    // var vBuffer2 = gl.createBuffer();
-    // gl.bindBuffer( gl.ARRAY_BUFFER, vBuffer2 );
-    // gl.bufferData( gl.ARRAY_BUFFER, flatten(points2), gl.STATIC_DRAW );
-
-    // var vPosition2 = gl.getAttribLocation( program, "vPosition2" );
-    // gl.vertexAttribPointer( vPosition2, 3, gl.FLOAT, false, 0, 0 );
-    // gl.enableVertexAttribArray( vPosition2 );
-
-    
-    
-    //event listeners for buttons
-    
-    document.getElementById( "xButton" ).onclick = function () {
-        axis = xAxis;
-        endTheta[axis] += 90;
-        console.log(axis);
-    };
-    document.getElementById( "yButton" ).onclick = function () {
-        axis = yAxis;
-        endTheta[axis] += 90;
-        console.log(axis);
-    };
-    document.getElementById( "zButton" ).onclick = function () {
-        axis = zAxis;
-        endTheta[axis] += 90;
-        console.log(axis);
-    };
-        
-    render();
+    console.log(vBuffers.length);
+    console.log(cBuffers.length);
+    console.log(vBuffers[0]);
 }
 
 function drawScene() {
+    var curBox;
+    var curFace;
+
+    // gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
+    gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+    // var box = 4;
+    pMatrix = perspective(fovy, aspect, near, far);
     for (var box=0; box<27; box++) {
-        points = [];
-        colors = [];
         mvMatrix = mvMatrices[box];
+        // mvMatrix = mult(mvMatrix, translate(-0.2,0.2,0));
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, vBuffers[box]);
+        gl.vertexAttribPointer( vPosition, 4, gl.FLOAT, false, 0, 0 );
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, cBuffers[box]);
+        gl.vertexAttribPointer( vColor, 4, gl.FLOAT, false, 0, 0 );
+
+        setUniforms();
+        gl.drawArrays(gl.TRIANGLES, 0, 36);
 
     }
+}
+
+// function animate() {
+
+// }
+
+function setUniforms() {
+    gl.uniformMatrix4fv(modelView, false, mvMatrix);
+    gl.uniformMatrix4fv(projection, false, pMatrix);
+
 }
 
 
@@ -247,33 +291,25 @@ function quad(face)
     for ( var i = 0; i < indices.length; ++i ) {
         points.push( vertices[indices[i]] );
         colors.push( vertexColors[face[4]] );
-        return;
+        NumVertices++;
     }
-    // console.log(points);
-    // console.log(colors);
-    // console.log(points.length);
-    // console.log(colors.length);
 }
 function render()
 {
-    gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    // gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
     // theta[axis] += 2.0;
-    for(var i=xAxis; i<=zAxis; i++) {
-        if(theta[i] < endTheta[i]) {
-            theta[i] += 2.0;
-        }
-    }
+    // for(var i=xAxis; i<=zAxis; i++) {
+    //     if(theta[i] < endTheta[i]) {
+    //         theta[i] += 2.0;
+    //     }
+    // }
 
-    eye = vec3(radius*Math.sin(laTheta)*Math.cos(laPhi), 
-        radius*Math.sin(laTheta)*Math.sin(laPhi), radius*Math.cos(laTheta));
-    mvMatrix = lookAt(eye, at , up);
-    pMatrix = perspective(fovy, aspect, near, far);
+    // eye = vec3(radius*Math.sin(laTheta)*Math.cos(laPhi), 
+    //     radius*Math.sin(laTheta)*Math.sin(laPhi), radius*Math.cos(laTheta));
+    // mvMatrix = lookAt(eye, at , up);
 
-    // mvMatrix = mult( mvMatrix, rotate(90, [1, 0 ,0]) );
-    // points = mult( points, rotate(90, [1, 0, 0]) );
-
-    gl.uniform3fv(thetaLoc, theta);
+    // gl.uniform3fv(thetaLoc, theta);
     gl.uniformMatrix4fv( modelView, false, flatten(mvMatrix) );
     gl.uniformMatrix4fv( projection, false, flatten(pMatrix) );
 
