@@ -1,0 +1,29 @@
+<html>
+	<head>
+		<title>Steven's Rubiks cube</title>
+
+		<body>
+			<script type="text/javascript" src="js/three.min.js"></script>
+			<script type="text/javascript" src="js/cube.js"></script>
+			<script	type="text/javascript">
+				window.onload = function() {
+					var innerWidth = window.innerWidth;
+					var innerHeight = window.innerHeight;
+					var aspectRatio = innerWidth/innerHeight;
+
+					camera = new THREE.PerspectiveCamera( 45, aspectRatio, 0.1, 10000 );
+					
+					renderer = new THREE.WebGLRenderer();
+					renderer.setSize( innerWidth, innerHeight );
+					renderer.setClearColor( 0xFFFFFF );
+					
+					// Add camera controls and event listeners
+					document.body.appendChild( renderer.domElement );
+
+					drawScene();
+					animate();
+				}
+			</script>
+		</body>
+	</head>
+</html>
