@@ -2,24 +2,64 @@ var camera;
 var renderer;
 var scene;
 var pivot;
+var cameraControls;
+var clock = new THREE.Clock();
 
 var boxes = [];
+var objects = [];
+
+function init() {
+	var innerWidth = window.innerWidth;
+    var innerHeight = window.innerHeight;
+    var aspectRatio = innerWidth / innerHeight;
+
+    //Renderer:
+	renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.gammaInput = true;
+    renderer.gammaOutput = true;
+    renderer.setClearColor(0xFFFFFF);
+    renderer.setSize(innerWidth, innerHeight);
+
+    //Camera:
+    camera = new THREE.PerspectiveCamera(45, aspectRatio, 0.1, 20000);
+    camera.position.set(400, 800, 800);
+
+    //CameraControls:
+    cameraControls = new THREE.OrbitControls(camera, renderer.domElement);
+	
+    // addEventListeners();
+}
+
+function addToDOM() {
+	var container = document.getElementById("container");
+    container.appendChild(renderer.domElement);
+
+ //    stats = new Stats();
+ //    stats.domElement.style.position = 'absolute';
+ //    stats.domElement.style.top = '0px';
+	// stats.domElement.style.left = '10px'; 
+ //    container.appendChild(stats.domElement);
+}
 
 function drawScene() {
 	scene = new THREE.Scene();
+	createLights();
 
 	makeBoxes();
-	createLights();
+	
 	pivot = new THREE.Object3D();
 	scene.add(pivot);
 	// Draw boxes
 	for (var i=0; i<27; i++) {
 		scene.add(boxes[i]);
 	}
+	// scene.add(boxes[0]);
+	// console.log(boxes.length);
 }
 
 function animate() {
-	console.log();
+	window.requestAnimationFrame(animate);
+	render();
 }
 
 var obj;
@@ -54,6 +94,7 @@ function makeBoxes() {
 		var box = new THREE.Mesh(boxGeo, boxColors[i]);
 		boxes.push(box);
 	}
+
 	//Front face
 	boxes[0].position.set(0,110,110);
 	boxes[1].position.set(-110,110,110);
@@ -86,6 +127,14 @@ function makeBoxes() {
 	boxes[24].position.set(110,0,-110);
 	boxes[25].position.set(110,110,-110);
 	boxes[26].position.set(0,0,-110);
+}
+
+function render() {
+	var delta = clock.getDelta();
+    cameraControls.update(delta);	
+
+	obj.position.copy(camera.position);
+	renderer.render(scene, camera);
 }
 
 function setBoxColors() {
