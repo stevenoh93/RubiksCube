@@ -37,7 +37,7 @@ var  fovy = 45.0;  // Field-of-view in Y direction angle (in degrees)
 var  aspect;       // Viewport aspect ratio
 
 var near = 0.1;
-var far = 5.0;
+var far = 1000.0;
 var radius = 3.0;
 var laTheta  = Math.PI/4;
 var laPhi    = Math.PI/4;
@@ -213,7 +213,6 @@ function drawScene() {
 
         setUniforms();
         gl.drawArrays(gl.TRIANGLES, 0, 36);
-
     }
 }
 
