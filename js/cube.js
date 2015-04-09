@@ -470,9 +470,8 @@ function isSolved() {
 		return;
 	}
 
-	// For the cube to be solved, only 4 sets of 9 cubes that originally were on the same plane
+	// For the cube to be solved, all 6 sets of 9 cubes that originally were on the same plane
 	// should all be on the same plane again, not necessarily the same plane as the original.
-	// If four planes are aligned, then the cube is sovled
 
 	// Front plane
 	var resultX = true;
@@ -526,6 +525,34 @@ function isSolved() {
 	curBox = boxes[1];
 	for (var j=0; j<3; j++) {
 		for (var i=1; i<4; i++){
+			resultX = resultX && (boxes[i+j*9].position.x == curBox.position.x);
+			resultY = resultY && (boxes[i+j*9].position.y == curBox.position.y);
+			resultZ = resultZ && (boxes[i+j*9].position.z == curBox.position.z);
+		}
+	}
+	result = result && (resultX || resultY || resultZ);
+	if (!result)
+		return false;
+
+	// Top plane
+	for (var j=0; j<3; j++) {
+		resultX = resultX && (boxes[0+j*9].position.x == curBox.position.x)
+							&& (boxes[1+j*9].position.x == curBox.position.x)
+							&& (boxes[7+j*9].position.x == curBox.position.x);
+		resultY = resultY && (boxes[0+j*9].position.y == curBox.position.y)
+							&& (boxes[1+j*9].position.y == curBox.position.y)
+							&& (boxes[7+j*9].position.y == curBox.position.y);
+		resultZ = resultZ && (boxes[0+j*9].position.z == curBox.position.z)
+							&& (boxes[1+j*9].position.z == curBox.position.z)
+							&& (boxes[7+j*9].position.z == curBox.position.z);
+	}
+	result = result && (resultX || resultY || resultZ);
+	if (!result)
+		return false;
+
+	// Bottom plane
+	for (var j=0; j<3; j++) {
+		for (var i=3; i<6; i++) {
 			resultX = resultX && (boxes[i+j*9].position.x == curBox.position.x);
 			resultY = resultY && (boxes[i+j*9].position.y == curBox.position.y);
 			resultZ = resultZ && (boxes[i+j*9].position.z == curBox.position.z);
