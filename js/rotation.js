@@ -90,8 +90,7 @@ function selectBox(axis, planeNum) {
 	if (rotateParams.shouldRotate)
 		return;
 	// Find which boxes belong to the specified plane by looking at coordinates
-	var curPos = new THREE.Vector3();
-	boxesBeingSelected = true;
+	var curPos = new THREE.Vector3();	
 	for (box in boxes) {
 		scene.updateMatrixWorld(true);
 		curPos.setFromMatrixPosition(boxes[box].matrixWorld);

@@ -10,15 +10,16 @@ function checkFileAPI() {
     }
 }
 
-function readText(filePath) {
-	var output = ""; //placeholder for text output
+function readText() {
+	var filePath = document.getElementById("filepath");
+	var output = "";
     if(filePath.files && filePath.files[0]) {           
         reader.onload = function (e) {
             output = e.target.result;
             parseResult(output);
-        };//end onload()
+        };
         reader.readAsText(filePath.files[0]);
-    }//end if html5 filelist support
+    }
 }
 
 function exportCube() {
@@ -57,7 +58,7 @@ function parseResult(result) {
 	var intervalFunc = setInterval( function() {
 		selectBox(Number(list[i]), Number(list[i+1]));
 		i+=2;
-		if (i > list.length)
+		if (i > list.length-1)
 			clearInterval(intervalFunc);
 	} , 600 );
 }

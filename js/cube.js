@@ -113,7 +113,6 @@ function render() {
     			}
     			break;
     	}
-
     	renderer.render( scene, camera );
     	if (!rotateParams.shouldRotate) {
     		for (box in boxesMoving)
@@ -125,7 +124,6 @@ function render() {
    			if (isSolved()) {
    				document.getElementById("solved").style.visibility = "visible"
    			}
-
     	}
     } else {
     	renderer.render( scene, camera );
