@@ -114,29 +114,29 @@ THREE.OrbitControls = function ( object, domElement ) {
 
 	};
 
-	this.zoomIn = function ( zoomScale ) {
+	// this.zoomIn = function ( zoomScale ) {
 
-		if ( zoomScale === undefined ) {
+	// 	if ( zoomScale === undefined ) {
 
-			zoomScale = getZoomScale();
+	// 		zoomScale = getZoomScale();
 
-		}
+	// 	}
 
-		scale /= zoomScale;
+	// 	scale /= zoomScale;
 
-	};
+	// };
 
-	this.zoomOut = function ( zoomScale ) {
+	// this.zoomOut = function ( zoomScale ) {
 
-		if ( zoomScale === undefined ) {
+	// 	if ( zoomScale === undefined ) {
 
-			zoomScale = getZoomScale();
+	// 		zoomScale = getZoomScale();
 
-		}
+	// 	}
 
-		scale *= zoomScale;
+	// 	scale *= zoomScale;
 
-	};
+	// };
 
 	this.pan = function ( distance ) {
 
@@ -210,139 +210,139 @@ THREE.OrbitControls = function ( object, domElement ) {
 
 	}
 
-	function getZoomScale() {
+	// function getZoomScale() {
 
-		return Math.pow( 0.95, scope.userZoomSpeed );
+	// 	return Math.pow( 0.95, scope.userZoomSpeed );
 
-	}
+	// }
 
-	function onMouseDown( event ) {
+	// function onMouseDown( event ) {
 
-		if ( scope.enabled === false ) return;
-		if ( scope.userRotate === false ) return;
+	// 	if ( scope.enabled === false ) return;
+	// 	if ( scope.userRotate === false ) return;
 
-		event.preventDefault();
+	// 	event.preventDefault();
 
-		if ( state === STATE.NONE )
-		{
-			if ( event.button === 0 )
-				state = STATE.ROTATE;
-			if ( event.button === 1 )
-				state = STATE.ZOOM;
-			if ( event.button === 2 )
-				state = STATE.PAN;
-		}
+	// 	if ( state === STATE.NONE )
+	// 	{
+	// 		if ( event.button === 0 )
+	// 			state = STATE.ROTATE;
+	// 		if ( event.button === 1 )
+	// 			state = STATE.ZOOM;
+	// 		if ( event.button === 2 )
+	// 			state = STATE.PAN;
+	// 	}
 		
 		
-		if ( state === STATE.ROTATE ) {
+	// 	if ( state === STATE.ROTATE ) {
 
-			//state = STATE.ROTATE;
+	// 		//state = STATE.ROTATE;
 
-			rotateStart.set( event.clientX, event.clientY );
+	// 		rotateStart.set( event.clientX, event.clientY );
 
-		} else if ( state === STATE.ZOOM ) {
+	// 	} else if ( state === STATE.ZOOM ) {
 
-			//state = STATE.ZOOM;
+	// 		//state = STATE.ZOOM;
 
-			zoomStart.set( event.clientX, event.clientY );
+	// 		zoomStart.set( event.clientX, event.clientY );
 
-		} else if ( state === STATE.PAN ) {
+	// 	} else if ( state === STATE.PAN ) {
 
-			//state = STATE.PAN;
+	// 		//state = STATE.PAN;
 
-		}
+	// 	}
 
-		document.addEventListener( 'mousemove', onMouseMove, false );
-		document.addEventListener( 'mouseup', onMouseUp, false );
+	// 	document.addEventListener( 'mousemove', onMouseMove, false );
+	// 	document.addEventListener( 'mouseup', onMouseUp, false );
 
-	}
+	// }
 
-	function onMouseMove( event ) {
+	// function onMouseMove( event ) {
 
-		if ( scope.enabled === false ) return;
+	// 	if ( scope.enabled === false ) return;
 
-		event.preventDefault();
+	// 	event.preventDefault();
 
 		
 		
-		if ( state === STATE.ROTATE ) {
+	// 	if ( state === STATE.ROTATE ) {
 
-			rotateEnd.set( event.clientX, event.clientY );
-			rotateDelta.subVectors( rotateEnd, rotateStart );
+	// 		rotateEnd.set( event.clientX, event.clientY );
+	// 		rotateDelta.subVectors( rotateEnd, rotateStart );
 
-			scope.rotateLeft( 2 * Math.PI * rotateDelta.x / PIXELS_PER_ROUND * scope.userRotateSpeed );
-			scope.rotateUp( 2 * Math.PI * rotateDelta.y / PIXELS_PER_ROUND * scope.userRotateSpeed );
+	// 		scope.rotateLeft( 2 * Math.PI * rotateDelta.x / PIXELS_PER_ROUND * scope.userRotateSpeed );
+	// 		scope.rotateUp( 2 * Math.PI * rotateDelta.y / PIXELS_PER_ROUND * scope.userRotateSpeed );
 
-			rotateStart.copy( rotateEnd );
+	// 		rotateStart.copy( rotateEnd );
 
-		} else if ( state === STATE.ZOOM ) {
+	// 	} else if ( state === STATE.ZOOM ) {
 
-			zoomEnd.set( event.clientX, event.clientY );
-			zoomDelta.subVectors( zoomEnd, zoomStart );
+	// 		zoomEnd.set( event.clientX, event.clientY );
+	// 		zoomDelta.subVectors( zoomEnd, zoomStart );
 
-			if ( zoomDelta.y > 0 ) {
+	// 		if ( zoomDelta.y > 0 ) {
 
-				scope.zoomIn();
+	// 			scope.zoomIn();
 
-			} else {
+	// 		} else {
 
-				scope.zoomOut();
+	// 			scope.zoomOut();
 
-			}
+	// 		}
 
-			zoomStart.copy( zoomEnd );
+	// 		zoomStart.copy( zoomEnd );
 
-		} else if ( state === STATE.PAN ) {
+	// 	} else if ( state === STATE.PAN ) {
 
-			var movementX = event.movementX || event.mozMovementX || event.webkitMovementX || 0;
-			var movementY = event.movementY || event.mozMovementY || event.webkitMovementY || 0;
+	// 		var movementX = event.movementX || event.mozMovementX || event.webkitMovementX || 0;
+	// 		var movementY = event.movementY || event.mozMovementY || event.webkitMovementY || 0;
 
-			scope.pan( new THREE.Vector3( - movementX, movementY, 0 ) );
+	// 		scope.pan( new THREE.Vector3( - movementX, movementY, 0 ) );
 
-		}
+	// 	}
 
-	}
+	// }
 
-	function onMouseUp( event ) {
+	// function onMouseUp( event ) {
 
-		if ( scope.enabled === false ) return;
-		if ( scope.userRotate === false ) return;
+	// 	if ( scope.enabled === false ) return;
+	// 	if ( scope.userRotate === false ) return;
 
-		document.removeEventListener( 'mousemove', onMouseMove, false );
-		document.removeEventListener( 'mouseup', onMouseUp, false );
+	// 	document.removeEventListener( 'mousemove', onMouseMove, false );
+	// 	document.removeEventListener( 'mouseup', onMouseUp, false );
 
-		state = STATE.NONE;
+	// 	state = STATE.NONE;
 
-	}
+	// }
 
-	function onMouseWheel( event ) {
+	// function onMouseWheel( event ) {
 
-		if ( scope.enabled === false ) return;
-		if ( scope.userZoom === false ) return;
+	// 	if ( scope.enabled === false ) return;
+	// 	if ( scope.userZoom === false ) return;
 
-		var delta = 0;
+	// 	var delta = 0;
 
-		if ( event.wheelDelta ) { // WebKit / Opera / Explorer 9
+	// 	if ( event.wheelDelta ) { // WebKit / Opera / Explorer 9
 
-			delta = event.wheelDelta;
+	// 		delta = event.wheelDelta;
 
-		} else if ( event.detail ) { // Firefox
+	// 	} else if ( event.detail ) { // Firefox
 
-			delta = - event.detail;
+	// 		delta = - event.detail;
 
-		}
+	// 	}
 
-		if ( delta > 0 ) {
+	// 	if ( delta > 0 ) {
 
-			scope.zoomOut();
+	// 		scope.zoomOut();
 
-		} else {
+	// 	} else {
 
-			scope.zoomIn();
+	// 		scope.zoomIn();
 
-		}
+	// 	}
 
-	}
+	// }
 
 	function onKeyDown( event ) {
 
@@ -392,9 +392,6 @@ THREE.OrbitControls = function ( object, domElement ) {
 	}
 
 	this.domElement.addEventListener( 'contextmenu', function ( event ) { event.preventDefault(); }, false );
-	this.domElement.addEventListener( 'mousedown', onMouseDown, false );
-	this.domElement.addEventListener( 'mousewheel', onMouseWheel, false );
-	this.domElement.addEventListener( 'DOMMouseScroll', onMouseWheel, false ); // firefox
 	window.addEventListener( 'keydown', onKeyDown, false );
 	window.addEventListener( 'keyup', onKeyUp, false );
 

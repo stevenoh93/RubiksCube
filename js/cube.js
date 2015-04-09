@@ -21,8 +21,8 @@ function init() {
     renderer.setSize(innerWidth, innerHeight);
 
     //Camera:
-    camera = new THREE.PerspectiveCamera(45, aspectRatio, 0.1, 20000);
-    camera.position.set(400, 800, 800);
+    camera = new THREE.PerspectiveCamera(40, aspectRatio, 0.1, 20000);
+    camera.position.set(800, 800, 800);
 
     //CameraControls:
     cameraControls = new THREE.OrbitControls(camera, renderer.domElement);
@@ -43,18 +43,19 @@ function addToDOM() {
 
 function drawScene() {
 	scene = new THREE.Scene();
-	createLights();
+	
+    var ambientLight = new THREE.AmbientLight(0xDDDDDD);
+	scene.add(ambientLight);
 
 	makeBoxes();
 	
 	pivot = new THREE.Object3D();
 	scene.add(pivot);
+
 	// Draw boxes
 	for (var i=0; i<27; i++) {
 		scene.add(boxes[i]);
 	}
-	// scene.add(boxes[0]);
-	// console.log(boxes.length);
 }
 
 function animate() {
@@ -62,33 +63,16 @@ function animate() {
 	render();
 }
 
-var obj;
-function createLights()
-{
-    //Lights
-    var ambientLight = new THREE.AmbientLight(0x333333);
-	scene.add(ambientLight);
-	
-    obj = new THREE.Object3D();
-	var spotlight = new THREE.SpotLight(0xFFFFFF, 0.99225);
-	spotlight.position.set(100,100,100);
-	spotlight.angle = 60 * Math.PI / 180;
-	spotlight.exponent = 100;
-	spotlight.target.position.set(0,0,0);
-	
-	var spotlight2 = new THREE.SpotLight(0xFFFFFF, 0.99225);
-	spotlight.position.set(100,100,250);
-	spotlight.angle = 60 * Math.PI / 180;
-	spotlight.exponent = 100;
-	spotlight.target.position.set(0,0,0);
-	
-	obj.add(spotlight);
-	obj.add(spotlight2);
-	scene.add(obj);
+
+function render() {
+	var delta = clock.getDelta();
+    cameraControls.update(delta);	
+
+	renderer.render(scene, camera);
 }
 
 function makeBoxes() {
-	var boxGeo = new THREE.BoxGeometry( 100, 100, 100, 15, 15, 15 );
+	var boxGeo = new THREE.BoxGeometry( 100, 100, 100 );
 	var boxColors = setBoxColors();
 	for (var i=0; i<27; i++) {
 		var box = new THREE.Mesh(boxGeo, boxColors[i]);
@@ -96,58 +80,50 @@ function makeBoxes() {
 	}
 
 	//Front face
-	boxes[0].position.set(0,110,110);
-	boxes[1].position.set(-110,110,110);
-	boxes[2].position.set(-110,0,110);
-	boxes[3].position.set(-110,-110,110);
-	boxes[4].position.set(0,-110, 110);
-	boxes[5].position.set(110,-110,110);
-	boxes[6].position.set(110,0,110);
-	boxes[7].position.set(110,110,110);
-	boxes[8].position.set(0,0,110);
+	boxes[0].position.set(0,105,105);
+	boxes[1].position.set(-105,105,105);
+	boxes[2].position.set(-105,0,105);
+	boxes[3].position.set(-105,-105,105);
+	boxes[4].position.set(0,-105, 105);
+	boxes[5].position.set(105,-105,105);
+	boxes[6].position.set(105,0,105);
+	boxes[7].position.set(105,105,105);
+	boxes[8].position.set(0,0,105);
 	
 	//Middle Face
-	boxes[9].position.set(0,110,0);
-	boxes[10].position.set(-110,110,0);
-	boxes[11].position.set(-110,0,0);
-	boxes[12].position.set(-110,-110,0);
-	boxes[13].position.set(0,-110, 0);
-	boxes[14].position.set(110,-110,0);
-	boxes[15].position.set(110,0,0);
-	boxes[16].position.set(110,110,0);
+	boxes[9].position.set(0,105,0);
+	boxes[10].position.set(-105,105,0);
+	boxes[11].position.set(-105,0,0);
+	boxes[12].position.set(-105,-105,0);
+	boxes[13].position.set(0,-105, 0);
+	boxes[14].position.set(105,-105,0);
+	boxes[15].position.set(105,0,0);
+	boxes[16].position.set(105,105,0);
 	boxes[17].position.set(0,0,0);
 	
 	//Back Face
-	boxes[18].position.set(0,110,-110);
-	boxes[19].position.set(-110,110,-110);
-	boxes[20].position.set(-110,0,-110);
-	boxes[21].position.set(-110,-110,-110);
-	boxes[22].position.set(0,-110, -110);
-	boxes[23].position.set(110,-110,-110);
-	boxes[24].position.set(110,0,-110);
-	boxes[25].position.set(110,110,-110);
-	boxes[26].position.set(0,0,-110);
-}
-
-function render() {
-	var delta = clock.getDelta();
-    cameraControls.update(delta);	
-
-	obj.position.copy(camera.position);
-	renderer.render(scene, camera);
+	boxes[18].position.set(0,105,-105);
+	boxes[19].position.set(-105,105,-105);
+	boxes[20].position.set(-105,0,-105);
+	boxes[21].position.set(-105,-105,-105);
+	boxes[22].position.set(0,-105, -105);
+	boxes[23].position.set(105,-105,-105);
+	boxes[24].position.set(105,0,-105);
+	boxes[25].position.set(105,105,-105);
+	boxes[26].position.set(0,0,-105);
 }
 
 function setBoxColors() {
 	var boxColors = [];
 
 	var materials = [
-		new THREE.MeshPhongMaterial({ color:0xC41E3A , shininess:0.4, specular:0x009900 }), // red
-		new THREE.MeshPhongMaterial({ color:0x009E60 , shininess:0.4, specular:0x009900 }), // green
-		new THREE.MeshPhongMaterial({ color:0x0051BA , shininess:0.4, specular:0x009900 }), // blue
-		new THREE.MeshPhongMaterial({ color:0xFF5800 , shininess:0.4, specular:0x009900 }), // orange
-		new THREE.MeshPhongMaterial({ color:0xFFD500 , shininess:0.4, specular:0x009900 }), // yellow
-		new THREE.MeshPhongMaterial({ color:0xFFFFFF , shininess:0.4, specular:0x009900 }), // white
-		new THREE.MeshPhongMaterial({ color:0x000000 , shininess:0.4, specular:0x009900 }) // black
+		new THREE.MeshPhongMaterial({ color:0xC41E3A , shininess:1.0, specular:0x009900 }), // red
+		new THREE.MeshPhongMaterial({ color:0x009E60 , shininess:1.0, specular:0x009900 }), // green
+		new THREE.MeshPhongMaterial({ color:0x0051BA , shininess:1.0, specular:0x009900 }), // blue
+		new THREE.MeshPhongMaterial({ color:0xFF5800 , shininess:1.0, specular:0x009900 }), // orange
+		new THREE.MeshPhongMaterial({ color:0xFFD500 , shininess:1.0, specular:0x009900 }), // yellow
+		new THREE.MeshPhongMaterial({ color:0xFFFFFF , shininess:1.0, specular:0x009900 }), // white
+		new THREE.MeshPhongMaterial({ color:0x000000 , shininess:1.0, specular:0x009900 }) // black
 	];
 	
 	var box = [];
