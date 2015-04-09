@@ -1,15 +1,15 @@
 
-function twistCube(face, dir) {
-	switch (face) {
-		case 0: // Front
-			getObjWorldPos(boxes[0]);
-			break;
-		case 1: // Top
-			break;
-		case 2: // Right
-			break; 
-	}
-
+function makeRandomMoves() {
+	var numMoves = document.getElementById("numMoves").value;
+	var i=0;
+	var intervalFunc = setInterval( function() {
+		var axis = Math.floor((Math.random()*3) + 1) * Math.pow(-1,Math.round(Math.random()));
+		var plane = Math.floor(Math.random()*3) - 1;
+		selectBox(axis, plane);
+		i+=1;
+		if (i >= numMoves)
+			clearInterval(intervalFunc);
+	} , 600 );
 }
 
 function keyPressHandler(event) {

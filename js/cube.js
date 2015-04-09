@@ -133,12 +133,6 @@ function render() {
 }
 
 function inputHandle() {
-	// document.getElementById( "clkFront" ).addEventListener( "click", function() { twistCube(0, 0) } );
-	// document.getElementById( "cclkFront" ).addEventListener( "click", function() { twistCube(0, 1) } );
-	// document.getElementById( "clkTop" ).addEventListener( "click", function() { twistCube(1, 0) } );
-	// document.getElementById( "cclkTop" ).addEventListener( "click", function() { twistCube(1, 1) } );
-	// document.getElementById( "clkRight" ).addEventListener( "click", function() { twistCube(2, 0) } );
-	// document.getElementById( "cclkRight" ).addEventListener( "click", function() { twistCube(2, 1) } );
 	window.addEventListener("keydown", keyPressHandler, false);
 }
 

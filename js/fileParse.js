@@ -60,7 +60,4 @@ function parseResult(result) {
 		if (i > list.length)
 			clearInterval(intervalFunc);
 	} , 600 );
-
-	
-	
 }
