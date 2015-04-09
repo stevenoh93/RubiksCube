@@ -13,6 +13,7 @@ function makeRandomMoves() {
 }
 
 function keyPressHandler(event) {
+	document.getElementById("solved").style.visibility = "hidden"
 	// Rotation axis key:
 	// positive x = 1, y = 2, z = 3
 	// negative x = -1, y = -2, z = -3
@@ -25,13 +26,13 @@ function keyPressHandler(event) {
 	if (event.shiftKey) { // Negative rotation
 		switch ( event.keyCode ) {
 			case 81: // Q
-				selectBox(-1, -1);
+				selectBox(-1, 1);
 				break;
 			case 87: // W
 				selectBox(-1, 0);
 				break;
 			case 69: // E
-				selectBox(-1, 1);
+				selectBox(-1, -1);
 				break;
 			case 65: // A
 				selectBox(-3, 1);
@@ -55,13 +56,13 @@ function keyPressHandler(event) {
 	} else {
 		switch ( event.keyCode ) {
 			case 81: // q
-				selectBox(1, -1);
+				selectBox(1, 1);
 				break;
 			case 87: // w
 				selectBox(1, 0);
 				break;
 			case 69: // e
-				selectBox(1, 1);
+				selectBox(1, -1);
 				break;
 			case 65: // a
 				selectBox(3, 1);

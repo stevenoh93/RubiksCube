@@ -44,8 +44,8 @@ function drawScene() {
     var ambientLight = new THREE.AmbientLight( 0xFFFFFF );
 	scene.add( ambientLight );
 
-	makeBoxes();
-	
+	makeBoxes();	
+
 	// Make a pivot object at (0,0,0). 
 	// When twisting the cube, add the cubes to this pivot and rotate the pivot.
 	
@@ -68,64 +68,64 @@ function animate() {
 
 function render() {
     cameraControls.update(  );	
-
-    var doneRotating = false;
-
     if (rotateParams.shouldRotate) {
     	switch (rotateParams.axis) {
     		case -1:
     			pivot.rotation.x -= 0.1;
     			if (pivot.rotation.x <= -Math.PI/2.0) {
     				pivot.rotation.x = -Math.PI/2.0;
-    				doneRotating = true;
+    				rotateParams.shouldRotate = false;
     			}
     			break;
     		case -2:
     			pivot.rotation.y -= 0.1;
     			if (pivot.rotation.y <= -Math.PI/2.0) {
     				pivot.rotation.y = -Math.PI/2.0;
-    				doneRotating = true;
+    				rotateParams.shouldRotate = false;
     			}
     			break;
     		case -3:
     			pivot.rotation.z -= 0.1;
     			if (pivot.rotation.z <= -Math.PI/2.0) {
     				pivot.rotation.z = -Math.PI/2.0;
-    				doneRotating = true;
+    				rotateParams.shouldRotate = false;
     			}
     			break;
     		case 1:
     			pivot.rotation.x += 0.1;
     			if (pivot.rotation.x >= Math.PI/2.0) {
     				pivot.rotation.x = Math.PI/2.0;
-    				doneRotating = true;
+    				rotateParams.shouldRotate = false;
     			}
     			break;
     		case 2:
-    			pivot.rotation.y += 0.08;
+    			pivot.rotation.y += 0.1;
     			if (pivot.rotation.y >= Math.PI/2.0) {
     				pivot.rotation.y = Math.PI/2.0;
-    				doneRotating = true;
+    				rotateParams.shouldRotate = false;
     			}
     			break;
     		case 3:
-    			pivot.rotation.z += 0.08;
+    			pivot.rotation.z += 0.1;
     			if (pivot.rotation.z >= Math.PI/2.0) {
     				pivot.rotation.z = Math.PI/2.0;
-    				doneRotating = true;
+    				rotateParams.shouldRotate = false;
     			}
     			break;
     	}
 
     	renderer.render( scene, camera );
-    	if (doneRotating) {
-    		rotateParams.shouldRotate = false;
+    	if (!rotateParams.shouldRotate) {
     		for (box in boxesMoving)
     			removeFromAnimate(boxes[boxesMoving[box]]);
     		boxesMoving = [];
     		pivot.rotation.x = 0;
     		pivot.rotation.y = 0;
     		pivot.rotation.z = 0;
+   			if (isSolved()) {
+   				document.getElementById("solved").style.visibility = "visible"
+   			}
+
     	}
     } else {
     	renderer.render( scene, camera );
@@ -182,13 +182,13 @@ function setBoxColors() {
 	var boxColors = [];
 
 	var materials = [
-		new THREE.MeshPhongMaterial({ color:0xB7E2EC , shininess:1.0, specular:0x009900 }), // red
-		new THREE.MeshPhongMaterial({ color:0x779C72 , shininess:1.0, specular:0x009900 }), // green
-		new THREE.MeshPhongMaterial({ color:0x4A6084 , shininess:1.0, specular:0x009900 }), // blue
-		new THREE.MeshPhongMaterial({ color:0xF7D1D7 , shininess:1.0, specular:0x009900 }), // orange
-		new THREE.MeshPhongMaterial({ color:0x7B4978 , shininess:1.0, specular:0x009900 }), // yellow
-		new THREE.MeshPhongMaterial({ color:0xFFFFFF , shininess:1.0, specular:0x009900 }), // white
-		new THREE.MeshPhongMaterial({ color:0x34363C , shininess:1.0, specular:0x009900 }) // black
+		new THREE.MeshPhongMaterial({ color:0xFFFFFF , shininess:1.0, specular:0x009900 }), // white - top
+		new THREE.MeshPhongMaterial({ color:0xC41E3A , shininess:1.0, specular:0x009900 }), // red - front
+		new THREE.MeshPhongMaterial({ color:0x009E60 , shininess:1.0, specular:0x009900 }), // green - left
+		new THREE.MeshPhongMaterial({ color:0xFFD500 , shininess:1.0, specular:0x009900 }), // yellow - bottom
+		new THREE.MeshPhongMaterial({ color:0x0051BA , shininess:1.0, specular:0x009900 }), // blue - right
+		new THREE.MeshPhongMaterial({ color:0xCE8500 , shininess:1.0, specular:0x009900 }), // orange - back
+		new THREE.MeshPhongMaterial({ color:0x000000 , shininess:1.0, specular:0x009900 }) // black
 	];
 	
 	var box = [];
@@ -462,6 +462,80 @@ function setBoxColors() {
 	boxColors.push(new THREE.MeshFaceMaterial(box));
 
 	return boxColors;
+}
+
+function isSolved() {
+	if ( rotateParams.shouldRotate ) {
+		// Cube is in the middle of animation
+		return;
+	}
+
+	// For the cube to be solved, only 4 sets of 9 cubes that originally were on the same plane
+	// should all be on the same plane again, not necessarily the same plane as the original.
+	// If four planes are aligned, then the cube is sovled
+
+	// Front plane
+	var resultX = true;
+	var resultY = true;
+	var resultZ = true;
+	var result = true;
+	var curBox = boxes[0];
+	for (var i=0; i<9; i++) {
+		resultX = resultX && (boxes[i].position.x == curBox.position.x);
+		resultY = resultY && (boxes[i].position.y == curBox.position.y);
+		resultZ = resultZ && (boxes[i].position.z == curBox.position.z);
+	}
+	result = result && (resultX || resultY || resultZ);
+	if (!result)
+		return false;
+
+	// Back plane
+	resultX = true;
+	resultY = true;
+	resultZ = true;
+	curBox = boxes[18];
+	for (var i=18; i<27; i++) {
+		resultX = resultX && (boxes[i].position.x == curBox.position.x);
+		resultY = resultY && (boxes[i].position.y == curBox.position.y);
+		resultZ = resultZ && (boxes[i].position.z == curBox.position.z);
+	}
+	result = result && (resultX || resultY || resultZ);
+	if (!result)
+		return false;
+
+	// Right plane
+	resultX = true;
+	resultY = true;
+	resultZ = true;
+	curBox = boxes[5];
+	for (var j=0; j<3; j++) {
+		for (var i=5; i<8; i++){
+			resultX = resultX && (boxes[i+j*9].position.x == curBox.position.x);
+			resultY = resultY && (boxes[i+j*9].position.y == curBox.position.y);
+			resultZ = resultZ && (boxes[i+j*9].position.z == curBox.position.z);
+		}
+	}
+	result = result && (resultX || resultY || resultZ);
+	if (!result)
+		return false;
+
+	// Left plane
+	resultX = true;
+	resultY = true;
+	resultZ = true;
+	curBox = boxes[1];
+	for (var j=0; j<3; j++) {
+		for (var i=1; i<4; i++){
+			resultX = resultX && (boxes[i+j*9].position.x == curBox.position.x);
+			resultY = resultY && (boxes[i+j*9].position.y == curBox.position.y);
+			resultZ = resultZ && (boxes[i+j*9].position.z == curBox.position.z);
+		}
+	}
+	result = result && (resultX || resultY || resultZ);
+	if (!result)
+		return false;
+
+	return true;
 }
 
 var debugaxis = function(axisLength){

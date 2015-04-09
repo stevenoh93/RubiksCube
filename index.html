@@ -29,6 +29,25 @@
 				<input type="submit" value="Submit" onclick="makeRandomMoves()">
 			</div>
 
+			<div id="solved" style="position:absolute; top:30%; left:20%; visibility:hidden">
+				<font color="white" size=75px style="bold"> SOLVED! </font>
+			</div>
+
+			<div id="instructions" style="position:absolute; top:20%; right:5%" >
+				<font color="white">
+					<ul>
+						<li>Click and drag to rotate the entire cube.</li>
+						<li>Red line - +x-axis<br>
+							Green line - +y-axis<br>
+							Blue line - +z-axis </li>
+						<li>Press q, w, e to twist planes normal to the x-axis in positive direction</li>
+						<li>Press a, s, d to twist planes normal to the z-axis in positive direction</li>
+						<li>Press z, x, c to twist planes normal to the y-axis in positive direction</li>
+						<li>Hold SHIFT key to twist in opposite direction</li>
+					</ul>
+				</font>
+			</div>
+
 			<div id="container"> </div>
 		</body>
 		
