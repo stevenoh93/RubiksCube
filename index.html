@@ -2,21 +2,36 @@
 	<head>
 		<title>Steven's Rubiks cube</title>
 
+		<script type="text/javascript" src="js/three.min.js"></script>
+		<script type="text/javascript" src="js/cube.js"></script>
+		<script type="text/javascript" src="js/rotation.js"></script>
+		<script type="text/javascript" src="js/OrbitControls.js"></script>
+		<script type="text/javascript" src="js/fileParse.js"></script>
+		<script	type="text/javascript">
+			window.onload = function() {
+				init();
+				drawScene();
+				animate();
+			}
+
+			checkFileAPI();
+		</script>
+
 		<body>
+			<div id="test"> </div>
+			<div style="position:absolute; top:5%; left:5%">
+					<font color="white"><input type="file" onchange="readText(this)" /></font>
+					<button id="exportCube" onclick="exportCube()">Export cube</button>
+			</div>
+
+			<div style="position:absolute; top:5%; right:5%">
+				<font color="white">Enter number of moves to scramble the cube: </font><input type="text" name="numTurns" >
+				<input type="submit" value="Submit" >
+			</div>
 
 			<div id="container"> </div>
 		</body>
-		<script type="text/javascript" src="js/three.min.js"></script>
-			<script type="text/javascript" src="js/cube.js"></script>
-			<script type="text/javascript" src="js/rotation.js"></script>
-			<script type="text/javascript" src="js/OrbitControls.js"></script>
-			<script	type="text/javascript">
-				window.onload = function() {
-					init();
-					drawScene();
-					animate();
-				}
-			</script>
+		
 	</head>
 </html>
 

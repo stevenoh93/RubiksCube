@@ -12,6 +12,7 @@ var rotateParams = {
 	axis:0,
 	shouldRotate:false
 };
+var rotHistory = [];
 
 function init() {
 	var innerWidth = window.innerWidth;
@@ -49,7 +50,6 @@ function drawScene() {
 	// When twisting the cube, add the cubes to this pivot and rotate the pivot.
 	
 	pivot = new THREE.Object3D();
-	console.log(pivot.position);
 	scene.add( pivot );
 
 	// Draw boxes
@@ -103,10 +103,8 @@ function render() {
     			break;
     		case 2:
     			pivot.rotation.y += 0.08;
-    			console.log(pivot.rotation.y);
     			if (pivot.rotation.y >= Math.PI/2.0) {
     				pivot.rotation.y = Math.PI/2.0;
-    				console.log(pivot.rotation.y);
     				doneRotating = true;
     			}
     			break;

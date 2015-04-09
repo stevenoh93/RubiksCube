@@ -284,6 +284,8 @@ THREE.OrbitControls = function ( object, domElement, localElement ) {
 	}
  
 	function onMouseDown( event ) {
+		if ( event.explicitOriginalTarget.type==="text") { return; }
+
  
 		if ( scope.enabled === false ) { return; }
 		event.preventDefault();

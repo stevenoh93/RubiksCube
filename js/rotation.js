@@ -21,6 +21,7 @@ function keyPressHandler(event) {
 	// 1 -> plane near positive axis
 	// 0 -> middle plane
 	// -1 -> plane near negative axis
+
 	if (event.shiftKey) { // Negative rotation
 		switch ( event.keyCode ) {
 			case 81: // Q
@@ -110,6 +111,7 @@ function selectBox(axis, planeNum) {
 	}
 	rotateParams.shouldRotate = true;
 	rotateParams.axis = axis;
+	rotHistory.push([axis, planeNum]);
 }
 
 function addToAnimate(box, idx) {
