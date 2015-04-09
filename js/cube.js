@@ -7,6 +7,11 @@ var clock = new THREE.Clock();
 
 var boxes = [];
 var objects = [];
+var boxesMoving = [];
+var rotateParams = {
+	axis:0,
+	shouldRotate:false
+};
 
 function init() {
 	var innerWidth = window.innerWidth;
@@ -14,69 +19,137 @@ function init() {
     var aspectRatio = innerWidth / innerHeight;
 
     //Renderer:
-	renderer = new THREE.WebGLRenderer({ antialias: true });
-    renderer.gammaInput = true;
-    renderer.gammaOutput = true;
-    renderer.setClearColor(0xFFFFFF);
-    renderer.setSize(innerWidth, innerHeight);
+	renderer = new THREE.WebGLRenderer();
+    renderer.setClearColor( 0x111111 );
+    renderer.setSize( innerWidth, innerHeight );
 
     //Camera:
-    camera = new THREE.PerspectiveCamera(40, aspectRatio, 0.1, 20000);
-    camera.position.set(800, 800, 800);
+    camera = new THREE.PerspectiveCamera( 40, aspectRatio, 0.1, 10000 );
+    camera.position.set( 800, 800, 800 );
 
     //CameraControls:
-    cameraControls = new THREE.OrbitControls(camera, renderer.domElement);
+    cameraControls = new THREE.OrbitControls( camera, renderer.domElement );
 	
-    // addEventListeners();
+	var container = document.getElementById( "container" );
+    container.appendChild( renderer.domElement );
+
+    inputHandle();
 }
 
-function addToDOM() {
-	var container = document.getElementById("container");
-    container.appendChild(renderer.domElement);
-
- //    stats = new Stats();
- //    stats.domElement.style.position = 'absolute';
- //    stats.domElement.style.top = '0px';
-	// stats.domElement.style.left = '10px'; 
- //    container.appendChild(stats.domElement);
-}
 
 function drawScene() {
 	scene = new THREE.Scene();
 	
-    var ambientLight = new THREE.AmbientLight(0xDDDDDD);
-	scene.add(ambientLight);
+    var ambientLight = new THREE.AmbientLight( 0xFFFFFF );
+	scene.add( ambientLight );
 
 	makeBoxes();
 	
+	// Make a pivot object at (0,0,0). 
+	// When twisting the cube, add the cubes to this pivot and rotate the pivot.
+	
 	pivot = new THREE.Object3D();
-	scene.add(pivot);
+	console.log(pivot.position);
+	scene.add( pivot );
 
 	// Draw boxes
 	for (var i=0; i<27; i++) {
-		scene.add(boxes[i]);
+		scene.add( boxes[i] );
 	}
+
+	debugaxis(1000);
 }
 
 function animate() {
-	window.requestAnimationFrame(animate);
+	window.requestAnimationFrame( animate );
 	render();
 }
 
 
 function render() {
-	var delta = clock.getDelta();
-    cameraControls.update(delta);	
+    cameraControls.update(  );	
 
-	renderer.render(scene, camera);
+    var doneRotating = false;
+
+    if (rotateParams.shouldRotate) {
+    	switch (rotateParams.axis) {
+    		case -1:
+    			pivot.rotation.x -= 0.1;
+    			if (pivot.rotation.x <= -Math.PI/2.0) {
+    				pivot.rotation.x = -Math.PI/2.0;
+    				doneRotating = true;
+    			}
+    			break;
+    		case -2:
+    			pivot.rotation.y -= 0.1;
+    			if (pivot.rotation.y <= -Math.PI/2.0) {
+    				pivot.rotation.y = -Math.PI/2.0;
+    				doneRotating = true;
+    			}
+    			break;
+    		case -3:
+    			pivot.rotation.z -= 0.1;
+    			if (pivot.rotation.z <= -Math.PI/2.0) {
+    				pivot.rotation.z = -Math.PI/2.0;
+    				doneRotating = true;
+    			}
+    			break;
+    		case 1:
+    			pivot.rotation.x += 0.1;
+    			if (pivot.rotation.x >= Math.PI/2.0) {
+    				pivot.rotation.x = Math.PI/2.0;
+    				doneRotating = true;
+    			}
+    			break;
+    		case 2:
+    			pivot.rotation.y += 0.08;
+    			console.log(pivot.rotation.y);
+    			if (pivot.rotation.y >= Math.PI/2.0) {
+    				pivot.rotation.y = Math.PI/2.0;
+    				console.log(pivot.rotation.y);
+    				doneRotating = true;
+    			}
+    			break;
+    		case 3:
+    			pivot.rotation.z += 0.08;
+    			if (pivot.rotation.z >= Math.PI/2.0) {
+    				pivot.rotation.z = Math.PI/2.0;
+    				doneRotating = true;
+    			}
+    			break;
+    	}
+
+    	renderer.render( scene, camera );
+    	if (doneRotating) {
+    		rotateParams.shouldRotate = false;
+    		for (box in boxesMoving)
+    			removeFromAnimate(boxes[boxesMoving[box]]);
+    		boxesMoving = [];
+    		pivot.rotation.x = 0;
+    		pivot.rotation.y = 0;
+    		pivot.rotation.z = 0;
+    	}
+    } else {
+    	renderer.render( scene, camera );
+    }
+}
+
+function inputHandle() {
+	// document.getElementById( "clkFront" ).addEventListener( "click", function() { twistCube(0, 0) } );
+	// document.getElementById( "cclkFront" ).addEventListener( "click", function() { twistCube(0, 1) } );
+	// document.getElementById( "clkTop" ).addEventListener( "click", function() { twistCube(1, 0) } );
+	// document.getElementById( "cclkTop" ).addEventListener( "click", function() { twistCube(1, 1) } );
+	// document.getElementById( "clkRight" ).addEventListener( "click", function() { twistCube(2, 0) } );
+	// document.getElementById( "cclkRight" ).addEventListener( "click", function() { twistCube(2, 1) } );
+	window.addEventListener("keydown", keyPressHandler, false);
 }
 
 function makeBoxes() {
 	var boxGeo = new THREE.BoxGeometry( 100, 100, 100 );
 	var boxColors = setBoxColors();
 	for (var i=0; i<27; i++) {
-		var box = new THREE.Mesh(boxGeo, boxColors[i]);
-		boxes.push(box);
+		var box = new THREE.Mesh( boxGeo, boxColors[i] );
+		boxes.push( box );
 	}
 
 	//Front face
@@ -117,13 +190,13 @@ function setBoxColors() {
 	var boxColors = [];
 
 	var materials = [
-		new THREE.MeshPhongMaterial({ color:0xC41E3A , shininess:1.0, specular:0x009900 }), // red
-		new THREE.MeshPhongMaterial({ color:0x009E60 , shininess:1.0, specular:0x009900 }), // green
-		new THREE.MeshPhongMaterial({ color:0x0051BA , shininess:1.0, specular:0x009900 }), // blue
-		new THREE.MeshPhongMaterial({ color:0xFF5800 , shininess:1.0, specular:0x009900 }), // orange
-		new THREE.MeshPhongMaterial({ color:0xFFD500 , shininess:1.0, specular:0x009900 }), // yellow
+		new THREE.MeshPhongMaterial({ color:0xB7E2EC , shininess:1.0, specular:0x009900 }), // red
+		new THREE.MeshPhongMaterial({ color:0x779C72 , shininess:1.0, specular:0x009900 }), // green
+		new THREE.MeshPhongMaterial({ color:0x4A6084 , shininess:1.0, specular:0x009900 }), // blue
+		new THREE.MeshPhongMaterial({ color:0xF7D1D7 , shininess:1.0, specular:0x009900 }), // orange
+		new THREE.MeshPhongMaterial({ color:0x7B4978 , shininess:1.0, specular:0x009900 }), // yellow
 		new THREE.MeshPhongMaterial({ color:0xFFFFFF , shininess:1.0, specular:0x009900 }), // white
-		new THREE.MeshPhongMaterial({ color:0x000000 , shininess:1.0, specular:0x009900 }) // black
+		new THREE.MeshPhongMaterial({ color:0x34363C , shininess:1.0, specular:0x009900 }) // black
 	];
 	
 	var box = [];
@@ -398,3 +471,23 @@ function setBoxColors() {
 
 	return boxColors;
 }
+
+var debugaxis = function(axisLength){
+    //Shorten the vertex function
+    function v(x,y,z){
+            return new THREE.Vector3(x,y,z);
+    }
+   
+    //Create axis (point1, point2, colour)
+    function createAxis(p1, p2, color){
+            var line, lineGeometry = new THREE.Geometry(),
+            lineMat = new THREE.LineBasicMaterial({color: color, lineWidth: 1});
+            lineGeometry.vertices.push(p1, p2);
+            line = new THREE.Line(lineGeometry, lineMat);
+            scene.add(line);
+    }
+   
+    createAxis(v(0, 0, 0), v(axisLength, 0, 0), 0xFF0000);
+    createAxis(v(0, 0, 0), v(0, axisLength, 0), 0x00FF00);
+    createAxis(v(0, 0, 0), v(0, 0, axisLength), 0x0000FF);
+};
